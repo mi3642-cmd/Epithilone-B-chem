@@ -5,45 +5,128 @@ from rdkit.Chem.Draw import rdMolDraw2D
 import py3Dmol
 import pandas as pd
 
-st.set_page_config(page_title="Epothilone B Analyzer", layout="wide")
+st.set_page_config(page_title="Epothilone B Dashboard", layout="wide")
 
 # ===============================
-# TITLE (KEEP YOUR STYLE)
+# UI + BUTTON FIX
 # ===============================
-st.title("🧬 Epothilone B Stereochemistry Analyzer")
+st.markdown("""
+<style>
+[data-testid="stAppViewContainer"] {
+    background: #eef2f7;
+}
+
+/* TEXT FIX */
+h1, h2, h3, h4, h5 {
+    color: #1f3c88 !important;
+}
+
+p, li, div {
+    color: #111 !important;
+}
+
+/* TITLE */
+.title {
+    text-align: center;
+    font-size: 42px;
+    font-weight: bold;
+    color: #1f3c88;
+}
+
+/* CARDS */
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+/* BUTTON FIX */
+.stButton>button {
+    background-color: #1f3c88;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: bold;
+    border: none;
+}
+
+.stButton>button:hover {
+    background-color: #162d66;
+    color: white;
+}
+
+/* HIGHLIGHT */
+.highlight {
+    color: #ff4d6d;
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ===============================
-# THEORY (SAME STRUCTURE, BETTER TEXT)
+# HEADER
 # ===============================
-st.header("🔬 What is Stereochemistry?")
-st.write("""
+st.markdown("<div class='title'>🧬 Epothilone B Molecular Dashboard</div>", unsafe_allow_html=True)
+st.write("")
+
+# ===============================
+# TOP CARDS
+# ===============================
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("### 🔬 Stereochemistry")
+    st.write("Study of 3D structure of molecules affecting drug behavior.")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with col2:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("### 💊 Epothilone B")
+    st.write("Anticancer compound that stabilizes microtubules.")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with col3:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("### 🧪 R/S Configuration")
+    st.write("Describes spatial arrangement of atoms around chiral centers.")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# ===============================
+# CONTENT (YOUR TEXT)
+# ===============================
+st.markdown("## 📘 Detailed Explanation")
+
+st.markdown("""
+### 🔬 What is Stereochemistry?
 Stereochemistry is the study of the three-dimensional arrangement of atoms in molecules.
 
 Even if two molecules have the same molecular formula and bonding structure, their spatial arrangement can differ, leading to completely different chemical and biological behavior.
 
 In pharmaceutical science:
-- One stereoisomer may act as a drug
-- Another may be inactive or harmful
+- One stereoisomer may act as a drug  
+- Another may be inactive or harmful  
 
 This is because biological systems recognize molecules based on their 3D structure.
-""")
 
-st.header("💊 About Epothilone B")
-st.write("""
+---
+
+### 💊 About Epothilone B
 Epothilone B is a natural anticancer compound derived from bacteria.
 
 It stabilizes microtubules inside cells, preventing cancer cells from dividing.
 
 Key points:
-- Similar to Taxol
-- Effective against drug-resistant cancers
-- Activity depends strongly on stereochemistry
+- Similar to Taxol  
+- Effective against drug-resistant cancers  
+- Activity depends strongly on stereochemistry  
 
 Its 3D structure is critical for its function.
-""")
 
-st.header("🧪 What is R/S Configuration?")
-st.write("""
+---
+
+### 🧪 What is R/S Configuration?
 R/S configuration describes how atoms are arranged around a chiral center.
 
 A chiral center is usually a carbon attached to four different groups.
@@ -56,9 +139,11 @@ These configurations determine how a molecule interacts with biological systems.
 """)
 
 # ===============================
-# ANALYSIS BUTTON
+# ANALYSIS
 # ===============================
-if st.button("🔬 Analyze Epothilone B"):
+st.markdown("## 🔬 Molecular Analysis")
+
+if st.button("Analyze Epothilone B"):
 
     smiles = "CC1=C[C@@H]2[C@@H](O)[C@H](OC(=O)C[C@H](C)[C@H](O)C(=O)N[C@@H](C)C(=O)O)[C@@H](O)[C@H](OC)[C@H](C)[C@@H](O)[C@H](C)C(=O)O[C@H]2O1"
 
@@ -80,7 +165,7 @@ if st.button("🔬 Analyze Epothilone B"):
         atom = mol.GetAtomWithIdx(idx)
         symbol = atom.GetSymbol()
 
-        st.write(f"Atom {idx} ({symbol}): {config}")
+        st.markdown(f"<span class='highlight'>Atom {idx} ({symbol}) → {config}</span>", unsafe_allow_html=True)
 
         data.append({
             "Atom Index": idx,
@@ -92,59 +177,50 @@ if st.button("🔬 Analyze Epothilone B"):
 
     st.success(f"Total chiral centers: {len(centers)}")
 
-    # ===============================
-    # TABLE (NEW ADDITION)
-    # ===============================
+    # TABLE
     st.subheader("📊 Chiral Centers Table")
     df = pd.DataFrame(data)
     st.dataframe(df)
 
-    # ===============================
-    # 2D STRUCTURE
-    # ===============================
-    st.subheader("🧬 2D Structure")
+    # VISUALS
+    col1, col2 = st.columns(2)
 
-    drawer = rdMolDraw2D.MolDraw2DSVG(500, 400)
-    drawer.DrawMolecule(mol, highlightAtoms=chiral_atoms)
-    drawer.FinishDrawing()
+    with col1:
+        st.subheader("🧬 2D Structure")
 
-    svg = drawer.GetDrawingText()
-    st.components.v1.html(svg, height=400)
+        drawer = rdMolDraw2D.MolDraw2DSVG(400, 400)
+        drawer.DrawMolecule(mol, highlightAtoms=chiral_atoms)
+        drawer.FinishDrawing()
 
-    # ===============================
-    # 🔥 IMPROVED 3D VIEW
-    # ===============================
-    st.subheader("🌐 3D Structure (Enhanced View)")
+        svg = drawer.GetDrawingText()
+        st.components.v1.html(svg, height=400)
 
-    mol_block = Chem.MolToMolBlock(mol)
+    with col2:
+        st.subheader("🌐 3D Structure")
 
-    view = py3Dmol.view(width=700, height=500)
+        mol_block = Chem.MolToMolBlock(mol)
 
-    # Better visualization style
-    view.addModel(mol_block, "mol")
+        view = py3Dmol.view(width=600, height=400)
+        view.addModel(mol_block, "mol")
 
-    view.setStyle({
-        "stick": {"radius": 0.2},
-        "sphere": {"scale": 0.25}
-    })
+        view.setStyle({
+            "stick": {"radius": 0.2},
+            "sphere": {"scale": 0.3}
+        })
 
-    # Highlight chiral atoms in RED
-    for idx in chiral_atoms:
-        view.addStyle(
-            {"serial": idx},
-            {"sphere": {"color": "red", "scale": 0.4}}
-        )
+        for idx in chiral_atoms:
+            view.addStyle({"serial": idx}, {"sphere": {"color": "red", "scale": 0.4}})
 
-    view.setBackgroundColor("white")
-    view.zoomTo()
-    view.spin(True)
+        view.setBackgroundColor("white")
+        view.spin(True)
+        view.zoomTo()
 
-    st.components.v1.html(view._make_html(), height=500)
+        st.components.v1.html(view._make_html(), height=400)
 
 # ===============================
 # FOOTER
 # ===============================
 st.markdown("---")
-st.write("👨‍🎓 Name: I MOHAMMED ABIDH")
+st.write("👨‍🎓 Name: I. MOHAMMED ABIDH")
 st.write("Register Number: RA2511026050042")
 st.write("Class: AIML - A")
